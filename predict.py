@@ -5,6 +5,7 @@ from cog import BasePredictor, Input, Path
 from PIL import Image
 from transparent_background import Remover
 import tempfile
+import os
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -14,10 +15,14 @@ class Predictor(BasePredictor):
     def predict(
         self,
         image: Path = Input(description="Grayscale input image"),
+        noProcess: bool = False,
     ) -> Path:
         """Run a single prediction on the model"""
-        img = Image.open(str(image)).convert('RGB')
-        out = self.remover.process(img)
         out_path = Path(tempfile.mkdtemp()) / "out.png"
-        Image.fromarray(out).save(out_path)
+        if noProcess is True :
+            out_path.touch()
+        else :
+            img = Image.open(str(image)).convert('RGB')
+            out = self.remover.process(img)
+            Image.fromarray(out).save(out_path)
         return Path(out_path)
